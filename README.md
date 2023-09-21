@@ -18,6 +18,7 @@ This project developed an ensemble approach that consist of three reinforcement 
 ```bash
 # In the directory that you want to try the project
 git clone git@github.com:Jiawen006/DRL-Trading-Draft.git
+cd DRL-Trading-Draft
 ```
 
 Contents in the requirement.txt
