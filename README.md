@@ -2,11 +2,14 @@
 
 This project developed an ensemble approach that consist of three reinforcement learning agents (A2C, PPO, DDPG). The result shows that this ensemble approach provides more robust result than any single reinforcement learning agents.
 
-
-<div style="text-align:center">
+<p align="center">
   <img src="asset/Flow Diagram.png" alt="Flow Diagram" width="80%" />
-  <p>Flow Chart of the Trading Process <a href="https://en.wikipedia.org/wiki/Markov_decision_process"> (Markov decision process)</a></p>
-</div>
+</p>
+
+<p align="center">
+Flow Chart of the Trading Process <a href="https://en.wikipedia.org/wiki/Markov_decision_process"> (Markov decision process)</a>
+</p>
+
 
 **Environment**
 + Use ten anonymized financial time series.
