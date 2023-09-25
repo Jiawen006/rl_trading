@@ -3,9 +3,9 @@ import time
 import numpy as np
 from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
-from validate import validate
 
 from config import config
+from utility.validate import validate
 
 
 def run_train(env):
