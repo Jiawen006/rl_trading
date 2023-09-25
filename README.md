@@ -2,16 +2,20 @@
 
 This project developed an ensemble approach that consist of three reinforcement learning agents (A2C, PPO, DDPG). The result shows that this ensemble approach provides more robust result than any single reinforcement learning agents.
 
-<p align="center">
-<img src = "asset/Flow Diagram.png" width=80% />
-</p>
 
-**Key features:**
-+ Develops a daily trading environment for ten anonymized financial time series.
-+ Supports order execution for both market order and limit order.
-+ Supports `Stable-Baseline3` algorithms including A2C, PPO and DDPG.
-+ Visualizes the backtesting result based on the ensemble approach.
-+ Provides analysis tools for model evaluation.
+<div style="text-align:center">
+  <img src="asset/Flow Diagram.png" alt="Flow Diagram" width="80%" />
+  <p>Flow Chart of the Trading Process <a href="https://en.wikipedia.org/wiki/Markov_decision_process"> (Markov decision process)</a></p>
+</div>
+
+**Environment**
++ Use ten anonymized financial time series.
++ Support order execution for market and limit order. 
+
+**Agent**
++ Support `Stable-Baseline3` algorithms including A2C, PPO and DDPG.
++ Visualize the backtesting result based on the ensemble approach.
++ Provide analysis tools for model evaluation.
 
 ## Installation
 
