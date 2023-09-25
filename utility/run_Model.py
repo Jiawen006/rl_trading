@@ -3,9 +3,10 @@ import os
 import pandas as pd
 from stable_baselines3.common.vec_env import DummyVecEnv
 
+from config import config
 from env.environment_train import StockEnvTrain
 from utility import preprocessor
-from utility.train import *
+from utility.train import run_train
 
 
 def run():

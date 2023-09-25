@@ -1,3 +1,9 @@
+import os
+import sys
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+
 import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import DummyVecEnv
@@ -19,15 +25,15 @@ def validate(model, data):
     return reward[0]
 
 
-# model = "trained_models/A2C.zip"
-# model = A2C.load(model)
-# data = pd.read_csv(
-#     "/Users/jiawentang/Documents/文件/工作/Preparation for Working/Project/FYP/Draft 1/DATA/train_processed.csv"
-# )
-# # trading_day = data['Index'].nunique()
-# # 2200 trading days
-# validate_data = data.tail(90 * 10)
-# validate_data.index = validate_data.Index.factorize()[0]
-# reward = validate(model, validate_data)
+model = "../trained_models/a2c_train"
+model = A2C.load(model)
+data = pd.read_csv(
+    "/Users/jiawentang/Documents/文件/工作/Preparation for Working/Project/FYP/Draft 1/DATA/train_processed.csv"
+)
+# trading_day = data['Index'].nunique()
+# 2200 trading days
+validate_data = data.tail(90 * 10)
+validate_data.index = validate_data.Index.factorize()[0]
+reward = validate(model, validate_data)
 
-# print("end")
+print("end")
