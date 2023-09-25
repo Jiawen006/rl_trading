@@ -16,9 +16,7 @@ def run():
     model = train_model(train_data)
 
     # to do
-    ensemble_strategy(model=model,
-                      data=test_data,
-                      window_length=config.WINDOW_LENGTH)
+    ensemble_strategy(model=model, data=test_data, window_length=config.WINDOW_LENGTH)
 
 
 def data_load(folder_name):

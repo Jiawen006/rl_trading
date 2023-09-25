@@ -8,18 +8,20 @@ from config import config
 
 
 class StockEnvTrain(gym.Env):
-    def __init__(self,
-                 df,
-                 stock_dim=10,
-                 hmax=100,
-                 initial_amount=config.INITIAL_AMOUNT,
-                 transaction_cost_pct=0.2,
-                 profit_reward_scaling=1e-9,
-                 loss_reward_scaling=2e-9,
-                 state_space=91,
-                 action_space=10,
-                 tech_indicator_list=config.INDICATORS,
-                 day=1):
+    def __init__(
+        self,
+        df,
+        stock_dim=10,
+        hmax=100,
+        initial_amount=config.INITIAL_AMOUNT,
+        transaction_cost_pct=0.2,
+        profit_reward_scaling=1e-9,
+        loss_reward_scaling=2e-9,
+        state_space=91,
+        action_space=10,
+        tech_indicator_list=config.INDICATORS,
+        day=1,
+    ):
         """
         This is the constructor
         :param df: a large file with all information
@@ -52,7 +54,9 @@ class StockEnvTrain(gym.Env):
         # price of limit order 2
         # size of limit order 2
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action_space,))
-        self.observation_space = spaces.Box(low=0, high=np.inf, shape=(self.state_space,))
+        self.observation_space = spaces.Box(
+            low=0, high=np.inf, shape=(self.state_space,)
+        )
 
         # load data from dataframe
         self.data = self.df.loc[self.day - 1, :]
@@ -67,13 +71,18 @@ class StockEnvTrain(gym.Env):
         # Open *10 + High *10 + Low * 10 + Close * 10
         # Owned shares
         # [macd 1-10]+ [rsi 1-10] + [cci 1-10] + [adx 1-10]
-        self.state = [self.initial_amount] + \
-                     self.data.Open.values.tolist() + \
-                     self.data.High.values.tolist() + \
-                     self.data.Low.values.tolist() + \
-                     self.data.Close.values.tolist() + \
-                     hold_position + \
-                     sum([self.data[tech].values.tolist() for tech in self.tech_indicator_list], [])
+        self.state = (
+            [self.initial_amount]
+            + self.data.Open.values.tolist()
+            + self.data.High.values.tolist()
+            + self.data.Low.values.tolist()
+            + self.data.Close.values.tolist()
+            + hold_position
+            + sum(
+                [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
+                [],
+            )
+        )
 
         self.reward = 0
         self.cost = 0
@@ -93,13 +102,20 @@ class StockEnvTrain(gym.Env):
             this_action = action_list[index]
             if this_action > 0:
                 # this is a buy market order
-                money_spent += this_action * (cur_open + abs(cur_open - pre_close) * self.transaction_cost_pct)
+                money_spent += this_action * (
+                    cur_open + abs(cur_open - pre_close) * self.transaction_cost_pct
+                )
             elif this_action < 0:
                 # # this is a sell market order
                 # check whether short too much, make this order as zero if it short above threshold
-                if self.state[hold_index] - abs(action_list[index]) > config.short_threshold[index]:
+                if (
+                    self.state[hold_index] - abs(action_list[index])
+                    > config.short_threshold[index]
+                ):
                     # we can short at this series
-                    money_spent += this_action * (cur_open - abs(cur_open - pre_close) * self.transaction_cost_pct)
+                    money_spent += this_action * (
+                        cur_open - abs(cur_open - pre_close) * self.transaction_cost_pct
+                    )
                 else:
                     # we can not short at this position
                     action_list[index] = 0
@@ -108,10 +124,19 @@ class StockEnvTrain(gym.Env):
         if money_spent < self.state[0]:
             # we can process the order, update one by one
             self.state[0] = self.state[0] - money_spent
-            self.state[(4 * self.stock_dim + 1):(5 * self.stock_dim + 1)] += action_list
-            self.cost = self.cost + sum((abs(action_list) *
-                                         abs(self.df.loc[self.day + 1, :].Open.values -
-                                             self.data.Close.values)) * self.transaction_cost_pct)
+            self.state[
+                (4 * self.stock_dim + 1) : (5 * self.stock_dim + 1)
+            ] += action_list
+            self.cost = self.cost + sum(
+                (
+                    abs(action_list)
+                    * abs(
+                        self.df.loc[self.day + 1, :].Open.values
+                        - self.data.Close.values
+                    )
+                )
+                * self.transaction_cost_pct
+            )
 
             self.trades += 1
         else:
@@ -164,14 +189,26 @@ class StockEnvTrain(gym.Env):
             pass
 
     def check_bankrupt(self):
-        end_total_asset = self.state[0] + \
-                          sum(np.array(self.state[1: (self.stock_dim + 1)]) *
-                              np.array(self.state[(4 * self.stock_dim + 1):(self.stock_dim * 5 + 1)]))
+        end_total_asset = self.state[0] + sum(
+            np.array(self.state[1 : (self.stock_dim + 1)])
+            * np.array(self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)])
+        )
         if end_total_asset < 0:
             self.terminal = True
-            self.reward = abs(config.banrupt_penalty * abs(end_total_asset) * self.loss_reward_scaling) * -1
+            self.reward = (
+                abs(
+                    config.banrupt_penalty
+                    * abs(end_total_asset)
+                    * self.loss_reward_scaling
+                )
+                * -1
+            )
             self.rewards_memory.append(self.reward)
-            print("Bankrupt at day {}! end_total_asset:{}".format(self.day, end_total_asset))
+            print(
+                "Bankrupt at day {}! end_total_asset:{}".format(
+                    self.day, end_total_asset
+                )
+            )
             print("=================================")
 
     def step(self, actions):
@@ -179,32 +216,43 @@ class StockEnvTrain(gym.Env):
 
         if self.terminal:
             # the trading ends, calculate the networth : balance + shares * open
-            end_total_asset = self.state[0] + \
-                              sum(np.array(self.state[1: (self.stock_dim + 1)]) *
-                                  np.array(self.state[(4 * self.stock_dim + 1):(self.stock_dim * 5 + 1)]))
+            end_total_asset = self.state[0] + sum(
+                np.array(self.state[1 : (self.stock_dim + 1)])
+                * np.array(
+                    self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)]
+                )
+            )
             self.asset_memory.append(end_total_asset)
             print("===========================")
             print("begin_total_asset:{}".format(self.asset_memory[0]))
             print("end_total_asset:{}".format(end_total_asset))
-            print("final return: {}".format((end_total_asset / self.initial_amount) - 1))
+            print(
+                "final return: {}".format((end_total_asset / self.initial_amount) - 1)
+            )
             print("{} days trade".format(self.trades))
             df_total_value = pd.DataFrame(self.asset_memory)
             # df_total_value.to_csv('results/account_value_train.csv')
 
             # print("total_trades: ", self.trades)
-            df_total_value.columns = ['account_value']
-            df_total_value['daily_return'] = df_total_value.pct_change(1)
-            sharpe = (252 ** 0.5) * df_total_value['daily_return'].mean() / \
-                     df_total_value['daily_return'].std()
+            df_total_value.columns = ["account_value"]
+            df_total_value["daily_return"] = df_total_value.pct_change(1)
+            sharpe = (
+                (252**0.5)
+                * df_total_value["daily_return"].mean()
+                / df_total_value["daily_return"].std()
+            )
             print("Sharpe: ", sharpe)
             print("=================================")
             self.reward = sharpe
         else:
-            begin_total_asset = self.state[0] + \
-                                sum(np.array(self.state[1:(self.stock_dim + 1)]) * np.array(
-                                    self.state[(4 * self.stock_dim + 1):(5 * self.stock_dim + 1)]))
+            begin_total_asset = self.state[0] + sum(
+                np.array(self.state[1 : (self.stock_dim + 1)])
+                * np.array(
+                    self.state[(4 * self.stock_dim + 1) : (5 * self.stock_dim + 1)]
+                )
+            )
             # operate market order
-            market_action = actions[0:self.stock_dim]
+            market_action = actions[0 : self.stock_dim]
             market_action[abs(market_action) < 0.05] = 0
             market_action = market_action * config.order_coefficient
 
@@ -213,27 +261,43 @@ class StockEnvTrain(gym.Env):
             self.day += 1
             self.data = self.df.loc[self.day, :]
             # load next state
-            self.state = [self.state[0]] + \
-                         self.data.Open.values.tolist() + \
-                         self.data.High.values.tolist() + \
-                         self.data.Low.values.tolist() + \
-                         self.data.Close.values.tolist() + \
-                         list(self.state[(4 * self.stock_dim + 1):(5 * self.stock_dim + 1)]) + \
-                         sum([self.data[tech].values.tolist() for tech in self.tech_indicator_list], [])
+            self.state = (
+                [self.state[0]]
+                + self.data.Open.values.tolist()
+                + self.data.High.values.tolist()
+                + self.data.Low.values.tolist()
+                + self.data.Close.values.tolist()
+                + list(self.state[(4 * self.stock_dim + 1) : (5 * self.stock_dim + 1)])
+                + sum(
+                    [
+                        self.data[tech].values.tolist()
+                        for tech in self.tech_indicator_list
+                    ],
+                    [],
+                )
+            )
 
             # decide order at day t, execute at day t+1
-            end_total_asset = self.state[0] + \
-                              sum(np.array(self.state[1: (self.stock_dim + 1)]) *
-                                  np.array(self.state[(4 * self.stock_dim + 1):(self.stock_dim * 5 + 1)]))
+            end_total_asset = self.state[0] + sum(
+                np.array(self.state[1 : (self.stock_dim + 1)])
+                * np.array(
+                    self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)]
+                )
+            )
             self.asset_memory.append(end_total_asset)
 
             df_total_value = pd.DataFrame(self.asset_memory)
-            df_total_value.columns = ['account_value']
+            df_total_value.columns = ["account_value"]
             if self.day > 2:
-                df_total_value['daily_return'] = df_total_value['account_value'].pct_change(1)
-                if df_total_value['daily_return'].std() != 0:
-                    sharpe = (252 ** 0.5) * df_total_value['daily_return'].mean() / \
-                             df_total_value['daily_return'].std()
+                df_total_value["daily_return"] = df_total_value[
+                    "account_value"
+                ].pct_change(1)
+                if df_total_value["daily_return"].std() != 0:
+                    sharpe = (
+                        (252**0.5)
+                        * df_total_value["daily_return"].mean()
+                        / df_total_value["daily_return"].std()
+                    )
                     self.reward = sharpe
             else:
                 self.reward = 0
@@ -253,16 +317,21 @@ class StockEnvTrain(gym.Env):
         self.terminal = False
         self.rewards_memory = []
         # initiate state
-        self.state = [self.initial_amount] + \
-                     self.data.Open.values.tolist() + \
-                     self.data.High.values.tolist() + \
-                     self.data.Low.values.tolist() + \
-                     self.data.Close.values.tolist() + \
-                     [0] * self.stock_dim + \
-                     sum([self.data[tech].values.tolist() for tech in self.tech_indicator_list], [])
+        self.state = (
+            [self.initial_amount]
+            + self.data.Open.values.tolist()
+            + self.data.High.values.tolist()
+            + self.data.Low.values.tolist()
+            + self.data.Close.values.tolist()
+            + [0] * self.stock_dim
+            + sum(
+                [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
+                [],
+            )
+        )
         return self.state
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         return self.state
 
     def _seed(self, seed=None):

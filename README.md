@@ -3,7 +3,7 @@
 This project developed an ensemble approach that consist of three reinforcement learning agents (A2C, PPO, DDPG). The result shows that this ensemble approach provides more robust result than any single reinforcement learning agents.
 
 <p align="center">
-<img src = "asset/Flow Diagram.gif" width=80% />
+<img src = "asset/Flow Diagram.png" width=80% />
 </p>
 
 **Key features:**
@@ -21,7 +21,7 @@ git clone git@github.com:Jiawen006/DRL-Trading-Draft.git
 cd DRL-Trading-Draft
 
 # Create the environment based on the YAML file
-conda env create -f Requirement.yaml
+conda env create -f requirements.yaml
 # Activate the environment
 conda activate RL-Trading
 
@@ -31,7 +31,7 @@ python3 main.py
 
 
 
-## Quick Start
+## Example Usage (To do in the future)
 
 After training the model, you can start to evaluate the model in the testing dataset and then visualize the equity curve.
 
