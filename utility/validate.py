@@ -2,7 +2,7 @@ import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from env.EnvMultipleStock_train import StockEnvTrain
+from env.Envmultiplestock_train import StockEnvTrain
 
 
 def validate(model, data):
