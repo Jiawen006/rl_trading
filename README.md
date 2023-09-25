@@ -7,8 +7,15 @@ This project developed an ensemble approach that consist of three reinforcement 
 </p>
 
 <p align="center">
-Interaction between the agent and the environment. On day `N`, the agent takes an action on the given state (including current balance, number of shares, and stock price on day `N`) and the transaction will execute on day `N+1`. The reward (profit / loss) and the new state `N + 1` will be returned to the agent to make new actions. Three reinforcement learning agents will contribute to the action by using the candidate with the largest Sharpe ratio in each trading window.
+Interaction between the agent and the environment. On day N, the agent takes an action on the given state (including current balance, number of shares, and stock price on day N) and the transaction will execute on day N+1. The reward (profit / loss) and the new state N + 1 will be returned to the agent to make new actions. Three reinforcement learning agents will contribute to the action by using the candidate with the largest Sharpe ratio in each trading window.
 </p>
+
+<figure>
+  <p align="center">
+    <img src="asset/Flow Diagram.png" alt="Flow Diagram" width="80%" />
+  </p>
+  <figcaption>Interaction between the agent and the environment. On day N, the agent takes an action on the given state (including current balance, number of shares, and stock price on day N) and the transaction will execute on day N+1. The reward (profit / loss) and the new state N + 1 will be returned to the agent to make new actions. Three reinforcement learning agents will contribute to the action by using the candidate with the largest Sharpe ratio in each trading window.</figcaption>
+</figure>
 
 
 **Environment**
