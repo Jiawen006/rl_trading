@@ -7,7 +7,7 @@ This project developed an ensemble approach that consist of three reinforcement 
 </p>
 
 <p align="center">
-Flow Chart of the Trading Process <a href="https://en.wikipedia.org/wiki/Markov_decision_process"> (Markov decision process)</a>
+Interaction between the agent and the environment. On day N, the agent takes an action on the given state (including current balance, number of shares, and stock price on day N) and the transaction will execute on day N+1. The reward (profit / loss) and the new state N + 1 will be returned to the agent to make new actions. Three reinforcement learning agents will contribute to the action by using the candidate with the largest Sharpe ratio in each trading window.
 </p>
 
 
