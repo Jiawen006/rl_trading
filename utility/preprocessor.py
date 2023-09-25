@@ -1,10 +1,9 @@
 import os
 
+import config
 import numpy as np
 import pandas as pd
 from stockstats import StockDataFrame as Sdf
-
-from config import config
 
 
 def data_split(df, start, end):
