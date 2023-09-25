@@ -1,11 +1,11 @@
 import os
 
 import pandas as pd
-from stable_baselines3.common.vec_env import DummyVecEnv
-
 import preprocessor
-from env.EnvMultipleStock_train import StockEnvTrain
+from stable_baselines3.common.vec_env import DummyVecEnv
 from train import *
+
+from env.EnvMultipleStock_train import StockEnvTrain
 
 
 def run():
