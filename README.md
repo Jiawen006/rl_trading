@@ -3,7 +3,7 @@
 This project developed an ensemble approach that consist of three reinforcement learning agents (A2C, PPO, DDPG). The result shows that this ensemble approach provides more robust result than any single reinforcement learning agents.
 
 <p align="center">
-<img src = "Flow_diagram.jpeg" width=80% />
+<img src = "asset/Flow Diagram.gif" width=80% />
 </p>
 
 **Key features:**
@@ -19,24 +19,19 @@ This project developed an ensemble approach that consist of three reinforcement 
 # In the directory that you want to try the project
 git clone git@github.com:Jiawen006/DRL-Trading-Draft.git
 cd DRL-Trading-Draft
-```
 
-Contents in the requirement.txt
+# Create the environment based on the YAML file
+conda env create -f Requirement.yaml
+# Activate the environment
+conda activate RL-Trading
 
-```
-numpy==1.24.3
-pandas==2.1.1
-stable_baselines3==2.1.0
-stockstats==0.6.2
-```
-
-## Quick Start
-
-You can directly start to train your own model using the default parameters. 
-
-```bash
+# You can directly start to train your own model using the default parameters. 
 python3 main.py
 ```
+
+
+
+## Quick Start
 
 After training the model, you can start to evaluate the model in the testing dataset and then visualize the equity curve.
 
@@ -80,4 +75,4 @@ The default configurations are specified in [config.py](config/config.py)
 - [ ] Try to build more variety with the system, for example supporting more RL agents or customize agents in ensemble strategy
 - [ ] Build analysis tools for the model
 - [ ] Complete the arguments
-- [ ] Write a pretty flow chart with GIF
+- [+] Write a pretty flow chart with GIF
