@@ -1,22 +1,31 @@
 import time
 
 import numpy as np
+import pandas as pd
 from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
+from stable_baselines3.common.vec_env import DummyVecEnv
 
 from config import config
+from env.environment_train import StockEnvTrain
 from utility.validate import validate
 
 
-def run_train(env):
-    model_a2c = train_A2C(env_train=env, model_name="a2c_train")
-    a2c_reward = validate(model_a2c)
+def run_train(data):
+    env_train = DummyVecEnv([lambda: StockEnvTrain(data)])
 
-    model_ppo = train_PPO(env_train=env, model_name="ppo_train")
-    ppo_reward = validate(model_ppo)
+    data = pd.read_csv("DATA/train_processed.csv")
+    validate_data = data.tail(90 * 10)
+    validate_data.index = validate_data.Index.factorize()[0]
 
-    model_ddpg = train_DDPG(env_train=env, model_name="ddpg_train")
-    ddpg_reward = validate(model_ddpg)
+    model_a2c = train_A2C(env_train=env_train, model_name="a2c_train")
+    a2c_reward = validate(model_a2c, validate_data)
+
+    model_ppo = train_PPO(env_train=env_train, model_name="ppo_train")
+    ppo_reward = validate(model_ppo, validate_data)
+
+    model_ddpg = train_DDPG(env_train=env_train, model_name="ddpg_train")
+    ddpg_reward = validate(model_ddpg, validate_data)
 
     # validate which model perform best
     if a2c_reward > max(ppo_reward, ddpg_reward):
