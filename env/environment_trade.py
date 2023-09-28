@@ -22,6 +22,7 @@ class StockEnvTrade(gym.Env):
         action_space=10,
         tech_indicator_list=config.INDICATORS,
         day=1,
+        save_file=None,
     ):
         """
         This is the constructor
@@ -65,6 +66,7 @@ class StockEnvTrade(gym.Env):
         self.terminal = False
 
         self.hold_position = shares
+        self.save_file = save_file
 
         # initialize state
         # Shape of observation space = 91
@@ -218,7 +220,7 @@ class StockEnvTrade(gym.Env):
 
     def step(self, actions):
         self.terminal = self.day >= len(self.df.index.unique()) - 1
-
+        # self.terminal = self.day >= len(self.df.index.unique())
         if self.terminal:
             # the trading ends, calculate the networth : balance + shares * open
             end_total_asset = self.state[0] + sum(
@@ -228,17 +230,15 @@ class StockEnvTrade(gym.Env):
                 )
             )
             self.asset_memory.append(end_total_asset)
-            print("===========================")
-            print("begin_total_asset:{}".format(self.asset_memory[0]))
-            print("end_total_asset:{}".format(end_total_asset))
-            print(
-                "final return: {}".format((end_total_asset / self.initial_amount) - 1)
-            )
-            print("{} days trade".format(self.trades))
             df_total_value = pd.DataFrame(self.asset_memory)
-            df_total_value.to_csv("results/account_value_train.csv")
+            if self.save_file != None:
+                df_total_value.to_csv(
+                    "results/account_value_trade.csv",
+                    mode="a",
+                    header=False,
+                    index=False,
+                )
 
-            # print("total_trades: ", self.trades)
             df_total_value.columns = ["account_value"]
             df_total_value["daily_return"] = df_total_value.pct_change(1)
             sharpe = (
@@ -246,8 +246,6 @@ class StockEnvTrade(gym.Env):
                 * df_total_value["daily_return"].mean()
                 / df_total_value["daily_return"].std()
             )
-            print("Sharpe: ", sharpe)
-            print("=================================")
             self.reward = sharpe
             return self.state, self.reward, self.terminal, {}
         else:
@@ -315,26 +313,6 @@ class StockEnvTrade(gym.Env):
         return self.state, self.reward, self.terminal, {}
 
     def reset(self):
-        # self.asset_memory = [self.initial_amount]
-        # self.day = 1
-        # self.data = self.df.loc[self.day, :]
-        # self.cost = 0
-        # self.trades = 0
-        # self.terminal = False
-        # self.rewards_memory = []
-        # # initiate state
-        # self.state = (
-        #     [self.initial_amount]
-        #     + self.data.Open.values.tolist()
-        #     + self.data.High.values.tolist()
-        #     + self.data.Low.values.tolist()
-        #     + self.data.Close.values.tolist()
-        #     + self.hold_position
-        #     + sum(
-        #         [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
-        #         [],
-        #     )
-        # )
         return self.state
 
     def render(self, mode="human"):

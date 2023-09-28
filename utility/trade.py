@@ -14,7 +14,11 @@ from utility import preprocessor
 
 def trade(model, data, balance, shares):
     env = DummyVecEnv(
-        [lambda: StockEnvTrade(df=data, initial_amount=balance, shares=shares)]
+        [
+            lambda: StockEnvTrade(
+                df=data, initial_amount=balance, shares=shares, save_file=True
+            )
+        ]
     )
     obs_trade = env.reset()
     trade_num = data.Index.unique()
@@ -22,7 +26,7 @@ def trade(model, data, balance, shares):
     reward_list = []
     balance_list = []
     share_list = []
-    for i in range(trade_num):
+    for i in range(trade_num - 1):
         action, _states = model.predict(obs_trade)
         obs_trade, rewards, dones, info = env.step(action)
         # if i == (trade_num - 2):

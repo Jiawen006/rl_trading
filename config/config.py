@@ -15,10 +15,11 @@ HMAX = 100
 
 now = datetime.now()
 TRAINED_MODEL_DIR = f"trained_models/{now}"
+RESULT = f"results/{now}"
 
-a2ctimesteps = 3000
-ppotimesteps = 1000
-ddpgtimestep = 100
+a2ctimesteps = 30000
+ppotimesteps = 20000
+ddpgtimestep = 10000
 
 A2C_PARAMS = {
     "n_steps": 20,

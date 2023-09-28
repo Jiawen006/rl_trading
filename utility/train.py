@@ -19,13 +19,19 @@ def run_train(data):
     validate_data.index = validate_data.Index.factorize()[0]
 
     model_a2c = train_A2C(env_train=env_train, model_name="a2c_train")
-    a2c_reward = validate(model_a2c, validate_data)
+    a2c_reward = validate(
+        model_a2c, validate_data, balance=config.INITIAL_AMOUNT, shares=[0] * 10
+    )
 
     model_ppo = train_PPO(env_train=env_train, model_name="ppo_train")
-    ppo_reward = validate(model_ppo, validate_data)
+    ppo_reward = validate(
+        model_ppo, validate_data, balance=config.INITIAL_AMOUNT, shares=[0] * 10
+    )
 
     model_ddpg = train_DDPG(env_train=env_train, model_name="ddpg_train")
-    ddpg_reward = validate(model_ddpg, validate_data)
+    ddpg_reward = validate(
+        model_ddpg, validate_data, balance=config.INITIAL_AMOUNT, shares=[0] * 10
+    )
 
     # validate which model perform best
     if a2c_reward > max(ppo_reward, ddpg_reward):

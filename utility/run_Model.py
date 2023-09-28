@@ -15,10 +15,8 @@ def run():
     train_data, test_data = data_load(folder_name=data_folder_path)
     print("Data loading is complete.")
 
-    # model = train_model(train_data)
-    # print("Data training is complete")
-
-    model = A2C.load("trained_models/a2c_train.zip")
+    model = train_model(train_data)
+    print("Data training is complete")
 
     final_sharpe = ensemble_strategy(
         model=model, data=test_data, window_length=config.WINDOW_LENGTH
