@@ -5,7 +5,6 @@ import pandas as pd
 from stable_baselines3 import A2C
 
 from config import config
-from env.environment_trade import StockEnvTrade
 from utility import preprocessor
 from utility.ensemble import ensemble_strategy
 from utility.train import run_train
@@ -21,7 +20,11 @@ def run():
 
     model = A2C.load("trained_models/a2c_train.zip")
 
-    ensemble_strategy(model=model, data=test_data, window_length=config.WINDOW_LENGTH)
+    final_sharpe = ensemble_strategy(
+        model=model, data=test_data, window_length=config.WINDOW_LENGTH
+    )
+
+    print("Trading ends. Final Sharpe Ratio is {}".format(final_sharpe))
 
 
 def data_load(folder_name):

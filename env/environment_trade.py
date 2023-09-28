@@ -87,7 +87,11 @@ class StockEnvTrade(gym.Env):
 
         self.reward = 0
         self.cost = 0
-        self.asset_memory = [self.initial_amount]
+        self.asset = self.state[0] + sum(
+            np.array(self.state[1 : (self.stock_dim + 1)])
+            * np.array(self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)])
+        )
+        self.asset_memory = [self.asset]
         self.rewards_memory = []
         self.trades = 0
         self._seed()
@@ -232,7 +236,7 @@ class StockEnvTrade(gym.Env):
             )
             print("{} days trade".format(self.trades))
             df_total_value = pd.DataFrame(self.asset_memory)
-            # df_total_value.to_csv('results/account_value_train.csv')
+            df_total_value.to_csv("results/account_value_train.csv")
 
             # print("total_trades: ", self.trades)
             df_total_value.columns = ["account_value"]
@@ -245,6 +249,7 @@ class StockEnvTrade(gym.Env):
             print("Sharpe: ", sharpe)
             print("=================================")
             self.reward = sharpe
+            return self.state, self.reward, self.terminal, {}
         else:
             begin_total_asset = self.state[0] + sum(
                 np.array(self.state[1 : (self.stock_dim + 1)])
@@ -310,26 +315,26 @@ class StockEnvTrade(gym.Env):
         return self.state, self.reward, self.terminal, {}
 
     def reset(self):
-        self.asset_memory = [self.initial_amount]
-        self.day = 1
-        self.data = self.df.loc[self.day, :]
-        self.cost = 0
-        self.trades = 0
-        self.terminal = False
-        self.rewards_memory = []
-        # initiate state
-        self.state = (
-            [self.initial_amount]
-            + self.data.Open.values.tolist()
-            + self.data.High.values.tolist()
-            + self.data.Low.values.tolist()
-            + self.data.Close.values.tolist()
-            + self.hold_position
-            + sum(
-                [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
-                [],
-            )
-        )
+        # self.asset_memory = [self.initial_amount]
+        # self.day = 1
+        # self.data = self.df.loc[self.day, :]
+        # self.cost = 0
+        # self.trades = 0
+        # self.terminal = False
+        # self.rewards_memory = []
+        # # initiate state
+        # self.state = (
+        #     [self.initial_amount]
+        #     + self.data.Open.values.tolist()
+        #     + self.data.High.values.tolist()
+        #     + self.data.Low.values.tolist()
+        #     + self.data.Close.values.tolist()
+        #     + self.hold_position
+        #     + sum(
+        #         [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
+        #         [],
+        #     )
+        # )
         return self.state
 
     def render(self, mode="human"):
