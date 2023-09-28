@@ -35,13 +35,9 @@ python3 main.py
 
 
 
-## Example Usage (To do in the future)
+## Example Usage
 
-After training the model, you can start to evaluate the model in the testing dataset and then visualize the equity curve.
-
-```bash
-python3 evaluate.py
-```
+After training the model, you can start to evaluate the model in the testing dataset and then visualize the equity curve. Example results are shown in the `result.ipynb`
 
 ## Arguments
 

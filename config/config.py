@@ -3,11 +3,11 @@ from datetime import datetime
 import numpy as np
 
 WINDOW_LENGTH = 90
-DATA_FOLDER = "DATA/"
-TRAINING_DATA_NAME = "DATA/train_processed.csv"
-TRAINING_DATA_FOLDER = "DATA/Train"
-TEST_DATA_NAME = "DATA/test_processed.csv"
-TEST_DATA_FOLDER = "DATA/Test"
+DATA_FOLDER = "data/"
+TRAINING_DATA_NAME = "data/train_processed.csv"
+TRAINING_DATA_FOLDER = "data/train"
+TEST_DATA_NAME = "data/test_processed.csv"
+TEST_DATA_FOLDER = "data/test"
 TURBULENCE_START = 50
 INDICATORS = ["macd", "rsi", "cci", "adx"]
 INITIAL_AMOUNT = 1000000
