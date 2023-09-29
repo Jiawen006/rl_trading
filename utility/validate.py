@@ -12,7 +12,7 @@ from env.environment_trade import StockEnvTrade
 from env.environment_train import StockEnvTrain
 
 
-def validate(model, data, balance, shares):
+def validate(model, data, balance, shares) -> float:
     """
     the function validate the trained model in a given period
     :return: sharpe ratio

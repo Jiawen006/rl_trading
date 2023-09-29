@@ -1,9 +1,8 @@
 import os
-from typing import Tuple
+from typing import Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
-from stable_baselines3 import A2C
 
 from config import config
 from utility import preprocessor
@@ -65,7 +64,7 @@ def data_load(folder_name) -> Tuple[pd.DataFrame, pd.DataFrame]:
     return train_data, test_data
 
 
-def train_model(data):
+def train_model(data) -> TypeVar:
     """
     Train a model before trading
 

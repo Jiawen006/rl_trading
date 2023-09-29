@@ -4,16 +4,16 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 from config import config
 from env.environment_trade import StockEnvTrade
-from utility import preprocessor, run_model
+from utility import preprocessor
 from utility.trade import trade
 from utility.train import train_A2C, train_DDPG, train_PPO
 from utility.validate import validate
 
 
-def ensemble_strategy(model, data, window_length):
+def ensemble_strategy(model, data, window_length) -> float:
     # this method start to run ensemble strategy
     trade_model = model
-    model_history_name = ["A2C"]
+    model_history_name = ["Trained"]
     a2c_sharpe_list = []
     ppo_sharpe_list = []
     ddpg_sharpe_list = []

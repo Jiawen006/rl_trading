@@ -24,16 +24,16 @@ ddpgtimestep = 10000
 A2C_PARAMS = {
     "n_steps": 20,
     "ent_coef": 0.003,
-    "learning_rate": 0.0001,
+    "learning_rate": 0.001,
     "verbose": 0,
 }
 PPO_PARAMS = {
-    "n_steps": 2048,
+    "n_steps": 1024,
     "ent_coef": 0.005,
-    "learning_rate": 0.0025,
+    "learning_rate": 0.003,
     "batch_size": 64,
 }
-DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.0001}
+DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
 
 series_weight = np.array([10, 200, 1, 10, 1, 100, 0.1, 100, 1, 5])
 order_coefficient = 10 * series_weight

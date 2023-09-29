@@ -1,4 +1,5 @@
 import time
+from typing import TypeVar
 
 import numpy as np
 import pandas as pd
@@ -11,7 +12,7 @@ from env.environment_train import StockEnvTrain
 from utility.validate import validate
 
 
-def run_train(data):
+def run_train(data) -> TypeVar:
     env_train = DummyVecEnv([lambda: StockEnvTrain(data)])
 
     data = pd.read_csv("DATA/train_processed.csv")
@@ -43,7 +44,7 @@ def run_train(data):
             return model_ddpg
 
 
-def train_A2C(env_train, model_name):
+def train_A2C(env_train, model_name) -> TypeVar:
     """A2C model"""
 
     start = time.time()
@@ -56,7 +57,7 @@ def train_A2C(env_train, model_name):
     return model
 
 
-def train_PPO(env_train, model_name):
+def train_PPO(env_train, model_name) -> TypeVar:
     """PPO model"""
 
     start = time.time()
@@ -71,7 +72,7 @@ def train_PPO(env_train, model_name):
     return model
 
 
-def train_DDPG(env_train, model_name):
+def train_DDPG(env_train, model_name) -> TypeVar:
     """DDPG model"""
 
     # add the noise objects for DDPG

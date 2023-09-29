@@ -7,7 +7,7 @@ from stockstats import StockDataFrame as Sdf
 from config import config
 
 
-def data_split(df, start, end):
+def data_split(df, start, end) -> pd.DataFrame:
     """
     split the dataset into training or testing using date
     :param data: (df) pandas dataframe, start, end
@@ -20,7 +20,7 @@ def data_split(df, start, end):
     return data
 
 
-def preprocess_pipeline(folder_path):
+def preprocess_pipeline(folder_path) -> pd.DataFrame:
     result = pd.DataFrame()
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
@@ -39,7 +39,7 @@ def preprocess_pipeline(folder_path):
     return result
 
 
-def single_preprocess(file_name):
+def single_preprocess(file_name) -> pd.DataFrame:
     """data preprocessing pipeline"""
 
     df = load_dataset(file_name=file_name)
@@ -65,7 +65,7 @@ def load_dataset(*, file_name: str) -> pd.DataFrame:
     return _data
 
 
-def add_technical_indicator(df):
+def add_technical_indicator(df) -> pd.DataFrame:
     """
     calcualte technical indicators
     use stockstats package to add technical indicators
@@ -105,7 +105,7 @@ def add_technical_indicator(df):
     return df
 
 
-def add_turbulence(df):
+def add_turbulence(df) -> pd.DataFrame:
     """
     add turbulence index from a precalcualted dataframe
     :param data: (df) pandas dataframe
@@ -117,7 +117,7 @@ def add_turbulence(df):
     return df
 
 
-def calcualte_turbulence(df):
+def calcualte_turbulence(df) -> pd.DataFrame:
     # can add other market assets
 
     df_price_pivot = df.pivot(index="Index", columns="Series", values="Close")
