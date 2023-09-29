@@ -21,7 +21,7 @@ class StockEnvTrain(gym.Env):
         action_space=10,
         tech_indicator_list=config.INDICATORS,
         day=1,
-    ):
+    ) -> None:
         """
         This is the constructor
         :param df: a large file with all information
@@ -91,7 +91,7 @@ class StockEnvTrain(gym.Env):
         self.trades = 0
         self._seed()
 
-    def market_order(self, actions):
+    def market_order(self, actions) -> None:
         # firstly, check how much money that will spend
         money_spent = 0
         action_list = actions
@@ -144,7 +144,7 @@ class StockEnvTrain(gym.Env):
             # print("attempt to spend {}, but only {} available. Stop executing on day {}.".format(money_spent, self.state[0],self.day))
             pass
 
-    def limit_order(self, index, price, size):
+    def limit_order(self, index, price, size) -> None:
         low = self.df.loc[self.day + 1, :].Low.values[index]
         high = self.df.loc[self.day + 1, :].High.values[index]
         # number of stocks hold at this index
@@ -188,7 +188,7 @@ class StockEnvTrain(gym.Env):
             # no limit order at this series
             pass
 
-    def check_bankrupt(self):
+    def check_bankrupt(self) -> None:
         end_total_asset = self.state[0] + sum(
             np.array(self.state[1 : (self.stock_dim + 1)])
             * np.array(self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)])

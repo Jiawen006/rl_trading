@@ -24,13 +24,13 @@ ddpgtimestep = 10000
 A2C_PARAMS = {
     "n_steps": 20,
     "ent_coef": 0.003,
-    "learning_rate": 0.001,
+    "learning_rate": 0.0001,
     "verbose": 0,
 }
 PPO_PARAMS = {
     "n_steps": 1024,
     "ent_coef": 0.005,
-    "learning_rate": 0.003,
+    "learning_rate": 0.0001,
     "batch_size": 64,
 }
 DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}

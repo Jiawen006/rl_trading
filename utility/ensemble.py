@@ -1,5 +1,4 @@
 import numpy as np
-from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from config import config
