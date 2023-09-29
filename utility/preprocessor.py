@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from stockstats import StockDataFrame as Sdf
 
-from config import config
+from utility import config
 
 
 def data_split(df: pd.DataFrame, start: int, end: int) -> pd.DataFrame:

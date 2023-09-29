@@ -1,5 +1,5 @@
 import time
-from typing import TypeVar
+from typing import Type, Union
 
 import numpy as np
 import pandas as pd
@@ -7,12 +7,12 @@ from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from config import config
+from utility import config
 from utility.env.environment_train import StockEnvTrain
 from utility.validate import validate
 
 
-def run_train(data: pd.DataFrame) -> TypeVar:
+def run_train(data: pd.DataFrame) -> Union[Type[A2C], Type[PPO], Type[DDPG]]:
     env_train = DummyVecEnv([lambda: StockEnvTrain(data)])
 
     data = pd.read_csv("DATA/train_processed.csv")
@@ -44,7 +44,7 @@ def run_train(data: pd.DataFrame) -> TypeVar:
             return model_ddpg
 
 
-def train_A2C(env_train, model_name: pd.DataFrame) -> TypeVar:
+def train_A2C(env_train, model_name: pd.DataFrame) -> Type[A2C]:
     """A2C model"""
 
     start = time.time()
@@ -57,7 +57,7 @@ def train_A2C(env_train, model_name: pd.DataFrame) -> TypeVar:
     return model
 
 
-def train_PPO(env_train, model_name: pd.DataFrame) -> TypeVar:
+def train_PPO(env_train, model_name: pd.DataFrame) -> Type[PPO]:
     """PPO model"""
 
     start = time.time()
@@ -72,7 +72,7 @@ def train_PPO(env_train, model_name: pd.DataFrame) -> TypeVar:
     return model
 
 
-def train_DDPG(env_train, model_name: pd.DataFrame) -> TypeVar:
+def train_DDPG(env_train, model_name: pd.DataFrame) -> Type[DDPG]:
     """DDPG model"""
 
     # add the noise objects for DDPG

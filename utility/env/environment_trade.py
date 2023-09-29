@@ -4,7 +4,7 @@ import pandas as pd
 from gym import spaces
 from gym.utils import seeding
 
-from config import config
+from utility import config
 
 
 class StockEnvTrade(gym.Env):

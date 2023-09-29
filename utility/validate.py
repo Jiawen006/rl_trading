@@ -1,18 +1,18 @@
-import os
-import sys
-
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(parent_dir)
+from typing import Type, Union
 
 import pandas as pd
-from stable_baselines3 import A2C
+from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from utility.env.environment_trade import StockEnvTrade
-from utility.env.environment_train import StockEnvTrain
 
 
-def validate(model, data: pd.DataFrame, balance: float, shares: float) -> float:
+def validate(
+    model: Union[Type[A2C], Type[PPO], Type[DDPG]],
+    data: pd.DataFrame,
+    balance: float,
+    shares: float,
+) -> float:
     """
     the function validate the trained model in a given period
     :return: sharpe ratio

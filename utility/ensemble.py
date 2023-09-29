@@ -1,16 +1,22 @@
+from typing import Type, Union
+
 import numpy as np
 import pandas as pd
+from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from config import config
-from utility import preprocessor
+from utility import config, preprocessor
 from utility.env.environment_trade import StockEnvTrade
 from utility.trade import trade
 from utility.train import train_A2C, train_DDPG, train_PPO
 from utility.validate import validate
 
 
-def ensemble_strategy(model, data: pd.DataFrame, window_length: int) -> float:
+def ensemble_strategy(
+    model: Union[Type[A2C], Type[PPO], Type[DDPG]],
+    data: pd.DataFrame,
+    window_length: int,
+) -> float:
     # this method start to run ensemble strategy
     trade_model = model
     model_history_name = ["Trained"]

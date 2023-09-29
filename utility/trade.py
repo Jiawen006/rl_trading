@@ -1,9 +1,9 @@
 import os
 import sys
-from typing import Tuple
+from typing import Type, Union
 
 import pandas as pd
-from stable_baselines3 import A2C
+from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from utility import preprocessor
@@ -11,7 +11,10 @@ from utility.env.environment_trade import StockEnvTrade
 
 
 def trade(
-    model, data: pd.DataFrame, balance: float, shares: float
+    model: Union[Type[A2C], Type[PPO], Type[DDPG]],
+    data: pd.DataFrame,
+    balance: float,
+    shares: float,
 ) -> tuple[float, float, float]:
     env = DummyVecEnv(
         [

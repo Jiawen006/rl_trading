@@ -1,13 +1,13 @@
 import os
-from typing import Tuple, TypeVar
+from typing import Tuple, Type, Union
 
 import numpy as np
 import pandas as pd
 import pandera as pa
 from pandera.typing import DataFrame, Index, Series
+from stable_baselines3 import A2C, DDPG, PPO
 
-from config import config
-from utility import preprocessor
+from utility import config, preprocessor
 from utility.ensemble import ensemble_strategy
 from utility.train import run_train
 
@@ -66,7 +66,7 @@ def data_load(folder_name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     return train_data, test_data
 
 
-def train_model(data: pd.DataFrame) -> TypeVar:
+def train_model(data: pd.DataFrame) -> Union[Type[A2C], Type[PPO], Type[DDPG]]:
     """
     Train a model before trading
 
