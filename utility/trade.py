@@ -10,8 +10,8 @@ import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from env.environment_trade import StockEnvTrade
 from utility import preprocessor
+from utility.env.environment_trade import StockEnvTrade
 
 
 def trade(

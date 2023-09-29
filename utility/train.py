@@ -8,7 +8,7 @@ from stable_baselines3.common.noise import OrnsteinUhlenbeckActionNoise
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from config import config
-from env.environment_train import StockEnvTrain
+from utility.env.environment_train import StockEnvTrain
 from utility.validate import validate
 
 

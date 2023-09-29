@@ -8,8 +8,8 @@ import pandas as pd
 from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from env.environment_trade import StockEnvTrade
-from env.environment_train import StockEnvTrain
+from utility.env.environment_trade import StockEnvTrade
+from utility.env.environment_train import StockEnvTrain
 
 
 def validate(model, data: pd.DataFrame, balance: float, shares: float) -> float:

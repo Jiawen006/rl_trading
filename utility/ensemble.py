@@ -3,8 +3,8 @@ import pandas as pd
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from config import config
-from env.environment_trade import StockEnvTrade
 from utility import preprocessor
+from utility.env.environment_trade import StockEnvTrade
 from utility.trade import trade
 from utility.train import train_A2C, train_DDPG, train_PPO
 from utility.validate import validate

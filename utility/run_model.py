@@ -3,6 +3,8 @@ from typing import Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
+import pandera as pa
+from pandera.typing import DataFrame, Index, Series
 
 from config import config
 from utility import preprocessor
