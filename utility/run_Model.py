@@ -1,4 +1,5 @@
 import os
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,16 @@ from utility.ensemble import ensemble_strategy
 from utility.train import run_train
 
 
-def run():
+def run() -> None:
+    """
+    The baseline of the whole program
+
+    [input]
+    * None
+
+    [output]
+    * None
+    """
     data_folder_path = config.DATA_FOLDER
     train_data, test_data = data_load(folder_name=data_folder_path)
     print("Data loading is complete.")
@@ -25,7 +35,17 @@ def run():
     print("Trading ends. Final Sharpe Ratio is {}".format(final_sharpe))
 
 
-def data_load(folder_name):
+def data_load(folder_name) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Load the dataset from the system and preprocess the data
+
+    [input]
+    * folder name: string
+
+    [output]
+    * train_data: pandas.DataFrame (including technical indicator and turbulence)
+    * test_data: pandas.DataFrame (including technical indicator and turbulence)
+    """
     # check whether folder exist
     if not os.path.exists(folder_name):
         raise Exception("DATA Folder not found.")
@@ -46,6 +66,15 @@ def data_load(folder_name):
 
 
 def train_model(data):
-    # this method train the model before trading
+    """
+    Train a model before trading
+
+    [input]
+    * Data: pandas.Dataframe (Training Data)
+
+    [output]
+    * model: Stable Baseline 3 Model
+    """
+
     model = run_train(data)
     return model
