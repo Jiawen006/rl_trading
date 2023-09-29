@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 from config import config
@@ -9,7 +10,7 @@ from utility.train import train_A2C, train_DDPG, train_PPO
 from utility.validate import validate
 
 
-def ensemble_strategy(model, data, window_length) -> float:
+def ensemble_strategy(model, data: pd.DataFrame, window_length: int) -> float:
     # this method start to run ensemble strategy
     trade_model = model
     model_history_name = ["Trained"]

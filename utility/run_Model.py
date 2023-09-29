@@ -34,7 +34,7 @@ def run() -> None:
     print("Trading ends. Final Sharpe Ratio is {}".format(final_sharpe))
 
 
-def data_load(folder_name) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def data_load(folder_name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Load the dataset from the system and preprocess the data
 
@@ -64,7 +64,7 @@ def data_load(folder_name) -> Tuple[pd.DataFrame, pd.DataFrame]:
     return train_data, test_data
 
 
-def train_model(data) -> TypeVar:
+def train_model(data: pd.DataFrame) -> TypeVar:
     """
     Train a model before trading
 

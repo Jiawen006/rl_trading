@@ -14,7 +14,9 @@ from env.environment_trade import StockEnvTrade
 from utility import preprocessor
 
 
-def trade(model, data, balance, shares) -> tuple[float, float, float]:
+def trade(
+    model, data: pd.DataFrame, balance: float, shares: float
+) -> tuple[float, float, float]:
     env = DummyVecEnv(
         [
             lambda: StockEnvTrade(

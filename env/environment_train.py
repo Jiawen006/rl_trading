@@ -10,7 +10,7 @@ from config import config
 class StockEnvTrain(gym.Env):
     def __init__(
         self,
-        df,
+        df: pd.DataFrame,
         stock_dim=10,
         hmax=100,
         initial_amount=config.INITIAL_AMOUNT,

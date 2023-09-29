@@ -10,7 +10,7 @@ from config import config
 class StockEnvTrade(gym.Env):
     def __init__(
         self,
-        df,
+        df: pd.DataFrame,
         initial_amount=config.INITIAL_AMOUNT,
         shares=[0] * 10,
         stock_dim=10,
