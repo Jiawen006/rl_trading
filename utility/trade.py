@@ -1,5 +1,5 @@
 """import required packages for typing, trading environment and predicting on RL model"""
-from typing import Type, Union
+from typing import List, Type, Union
 
 import pandas as pd
 from stable_baselines3 import A2C, DDPG, PPO
@@ -12,7 +12,7 @@ def trade(
     model: Union[Type[A2C], Type[PPO], Type[DDPG]],
     data: pd.DataFrame,
     balance: float,
-    shares: float,
+    shares: List[float],
 ) -> tuple[float, float, float]:
     """
     Trade based on pretrained model
@@ -31,7 +31,7 @@ def trade(
     env = DummyVecEnv(
         [
             lambda: StockEnvTrade(
-                df=data, initial_amount=balance, shares=shares, save_file=True
+                _df=data, initial_amount=balance, shares=shares, save_file=True
             )
         ]
     )
@@ -42,9 +42,9 @@ def trade(
     balance_list = []
     share_list = []
     for _ in range(trade_num - 1):
-        action, _states = model.predict(obs_trade)
+        action, _ = model.predict(obs_trade)
         obs_trade, rewards, _, _ = env.step(action)
-        balance = balance_list.append(obs_trade[0][0])
-        shares = share_list.append(obs_trade[0][41:51])
+        balance_list.append(obs_trade[0][0])
+        share_list.append(obs_trade[0][41:51])
         reward_list.append(rewards[0])
     return float(balance_list[-1]), list(share_list[-1]), reward_list[-1]

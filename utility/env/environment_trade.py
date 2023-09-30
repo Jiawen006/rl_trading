@@ -19,12 +19,8 @@ class StockEnvTrade(gym.Env):
         shares=None,
         stock_dim=10,
         hmax=100,
-        transaction_cost_pct=0.2,
-        profit_reward_scaling=1e-9,
-        loss_reward_scaling=2e-9,
         state_space=91,
         action_space=10,
-        tech_indicator_list=None,
         day=1,
         save_file=None,
     ) -> None:
@@ -45,13 +41,15 @@ class StockEnvTrade(gym.Env):
         self.stock_dim = stock_dim
         self.hmax = hmax
         self.initial_amount = initial_amount
-        self.transaction_cost_pct = transaction_cost_pct
-        self.profit_reward_scaling = profit_reward_scaling
-        self.loss_reward_scaling = loss_reward_scaling
+        self.transaction_cost_pct = config.TRANSACTION_COST_PCT
+        self.profit_reward_scaling = config.PROFIT_REWARD_SCALING
+        self.loss_reward_scaling = config.LOSS_REWARD_SCALING
         self.state_space = state_space
-        self.action_space = action_space
-        if tech_indicator_list is None:
-            self.tech_indicator_list = config.INDICATORS
+        self.tech_indicator_list = config.INDICATORS
+        self.terminal = False
+        self.trades = 0
+        self.reward = 0
+        self.cost = 0
 
         # action_space normalization and
         # shape is 5 * self.stock_dim (1 market order + 4 limit order)
@@ -61,6 +59,7 @@ class StockEnvTrade(gym.Env):
         # size of limit order 1
         # price of limit order 2
         # size of limit order 2
+        self.action_space = action_space
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action_space,))
         self.observation_space = spaces.Box(
             low=0, high=np.inf, shape=(self.state_space,)
@@ -69,10 +68,10 @@ class StockEnvTrade(gym.Env):
         # load data from dataframe
         self.data = self._df.loc[self.day - 1, :]
 
-        self.terminal = False
-
         if shares is None:
-            self.hold_position = [0] * 10
+            self.hold_position = [0] * self.stock_dim
+        else:
+            self.hold_position = shares
         self.save_file = save_file
 
         # initialize state
@@ -94,15 +93,13 @@ class StockEnvTrade(gym.Env):
             )
         )
 
-        self.reward = 0
-        self.cost = 0
         self.asset = self.state[0] + sum(
             np.array(self.state[1 : (self.stock_dim + 1)])
             * np.array(self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)])
         )
         self.asset_memory = [self.asset]
         self.rewards_memory = []
-        self.trades = 0
+
         self._seed()
 
     def market_order(self, actions) -> None:
@@ -283,7 +280,6 @@ class StockEnvTrade(gym.Env):
                 / df_total_value["daily_return"].std()
             )
             self.reward = sharpe
-            return self.state, self.reward, self.terminal, {}
         else:
             # operate market order
             market_action = action[0 : self.stock_dim]

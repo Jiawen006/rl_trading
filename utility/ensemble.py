@@ -7,6 +7,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 from utility import config, preprocessor
 from utility.env.environment_trade import StockEnvTrade
+from utility.env.environment_train import StockEnvTrain
 from utility.trade import trade
 from utility.train import a2c_training, ddpg_training, ppo_training
 from utility.validate import validate
@@ -46,7 +47,7 @@ def ensemble_strategy(
     for i in range(window_length, len(trade_date), window_length):
         # start_idx = (i - window_length) * 10
         # end_idx = i * 10
-        window_data = preprocessor.data_split(df=data, start=i - window_length, end=i)
+        window_data = preprocessor.data_split(_df=data, start=i - window_length, end=i)
         train_balance = balance_list[-1]
         train_share = shares_list[-1]
 
@@ -67,8 +68,8 @@ def ensemble_strategy(
         # start ensemble strategy
         train_env = DummyVecEnv(
             [
-                lambda: StockEnvTrade(
-                    df=data, initial_amount=balance_list[-1], shares=shares_list[-1]
+                lambda: StockEnvTrain(
+                    _df=data, initial_amount=balance_list[-1], shares=shares_list[-1]
                 )
             ]
         )

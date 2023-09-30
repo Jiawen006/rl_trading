@@ -15,15 +15,12 @@ class StockEnvTrain(gym.Env):
     def __init__(
         self,
         _df: pd.DataFrame,
+        initial_amount=config.INITIAL_AMOUNT,
+        shares=None,
         stock_dim=10,
         hmax=100,
-        initial_amount=config.INITIAL_AMOUNT,
-        transaction_cost_pct=0.2,
-        profit_reward_scaling=1e-9,
-        loss_reward_scaling=2e-9,
         state_space=91,
         action_space=10,
-        tech_indicator_list=None,
         day=1,
     ) -> None:
         """This is the constructor
@@ -42,13 +39,15 @@ class StockEnvTrain(gym.Env):
         self.stock_dim = stock_dim
         self.hmax = hmax
         self.initial_amount = initial_amount
-        self.transaction_cost_pct = transaction_cost_pct
-        self.profit_reward_scaling = profit_reward_scaling
-        self.loss_reward_scaling = loss_reward_scaling
+        self.transaction_cost_pct = config.TRANSACTION_COST_PCT
+        self.profit_reward_scaling = config.PROFIT_REWARD_SCALING
+        self.loss_reward_scaling = config.LOSS_REWARD_SCALING
         self.state_space = state_space
-        self.action_space = action_space
-        if tech_indicator_list is None:
-            self.tech_indicator_list = config.INDICATORS
+        self.tech_indicator_list = config.INDICATORS
+        self.terminal = False
+        self.trades = 0
+        self.reward = 0
+        self.cost = 0
 
         # action_space normalization
         # and shape is 5 * self.stock_dim (1 market order + 4 limit order)
@@ -58,6 +57,7 @@ class StockEnvTrain(gym.Env):
         # size of limit order 1
         # price of limit order 2
         # size of limit order 2
+        self.action_space = action_space
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action_space,))
         self.observation_space = spaces.Box(
             low=0, high=np.inf, shape=(self.state_space,)
@@ -65,10 +65,10 @@ class StockEnvTrain(gym.Env):
 
         # load data from dataframe
         self.data = self._df.loc[self.day - 1, :]
-
-        self.terminal = False
-
-        hold_position = [0] * self.stock_dim
+        if shares is None:
+            self.hold_position = [0] * self.stock_dim
+        else:
+            self.hold_position = shares
 
         # initialize state
         # Shape of observation space = 91
@@ -82,18 +82,16 @@ class StockEnvTrain(gym.Env):
             + self.data.High.values.tolist()
             + self.data.Low.values.tolist()
             + self.data.Close.values.tolist()
-            + hold_position
+            + self.hold_position
             + sum(
                 [self.data[tech].values.tolist() for tech in self.tech_indicator_list],
                 [],
             )
         )
 
-        self.reward = 0
-        self.cost = 0
         self.asset_memory = [self.initial_amount]
         self.rewards_memory = []
-        self.trades = 0
+
         self._seed()
 
     def market_order(self, actions) -> None:
@@ -257,15 +255,14 @@ class StockEnvTrain(gym.Env):
                 )
             )
             self.asset_memory.append(end_total_asset)
-            print("===========================")
-            print(f"begin_total_asset:{self.asset_memory[0]}")
-            print(f"end_total_asset:{end_total_asset}")
-            print(f"final return: {(end_total_asset / self.initial_amount) - 1}")
-            print(f"{self.trades} days trade")
+            # print("===========================")
+            # print(f"begin_total_asset:{self.asset_memory[0]}")
+            # print(f"end_total_asset:{end_total_asset}")
+            # print(f"final return: {(end_total_asset / self.initial_amount) - 1}")
+            # print(f"{self.trades} days trade")
             df_total_value = pd.DataFrame(self.asset_memory)
             # df_total_value.to_csv('results/account_value_train.csv')
 
-            # print("total_trades: ", self.trades)
             df_total_value.columns = ["account_value"]
             df_total_value["daily_return"] = df_total_value.pct_change(1)
             sharpe = (
@@ -277,12 +274,6 @@ class StockEnvTrain(gym.Env):
             print("=================================")
             self.reward = sharpe
         else:
-            # begin_total_asset = self.state[0] + sum(
-            #     np.array(self.state[1 : (self.stock_dim + 1)])
-            #     * np.array(
-            #         self.state[(4 * self.stock_dim + 1) : (5 * self.stock_dim + 1)]
-            #     )
-            # )
             # operate market order
             market_action = action[0 : self.stock_dim]
             market_action[abs(market_action) < 0.05] = 0

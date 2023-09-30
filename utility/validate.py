@@ -18,9 +18,7 @@ def validate(
     the function validate the trained model in a given period
     :return: sharpe ratio
     """
-    env = DummyVecEnv(
-        [lambda: StockEnvTrade(df=data, initial_amount=balance, shares=shares)]
-    )
+    env = DummyVecEnv([lambda: StockEnvTrade(_df=data, initial_amount=balance)])
     obj = env.reset()
     reward = 0
     for _ in range(data["Index"].nunique() - 1):
