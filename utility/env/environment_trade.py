@@ -1,3 +1,4 @@
+"""import necessary packages for building the environment"""
 import gym
 import numpy as np
 import pandas as pd
@@ -8,11 +9,14 @@ from utility import config
 
 
 class StockEnvTrade(gym.Env):
+    """Class representing the trading environment,
+    the initial state is remaining balance with the shares"""
+
     def __init__(
         self,
-        df: pd.DataFrame,
+        _df: pd.DataFrame,
         initial_amount=config.INITIAL_AMOUNT,
-        shares=[0] * 10,
+        shares=None,
         stock_dim=10,
         hmax=100,
         transaction_cost_pct=0.2,
@@ -20,13 +24,13 @@ class StockEnvTrade(gym.Env):
         loss_reward_scaling=2e-9,
         state_space=91,
         action_space=10,
-        tech_indicator_list=config.INDICATORS,
+        tech_indicator_list=None,
         day=1,
         save_file=None,
     ) -> None:
         """
         This is the constructor
-        :param df: a large file with all information
+        :param _df: a large file with all information
         :param stock_dim: number of stocks, in this problem it should be 10
         :param hmax: maximum number of shares to trade
         :param initial_amount: initial balance
@@ -37,7 +41,7 @@ class StockEnvTrade(gym.Env):
         :param day:
         """
         self.day = day
-        self.df = df
+        self._df = _df
         self.stock_dim = stock_dim
         self.hmax = hmax
         self.initial_amount = initial_amount
@@ -46,9 +50,11 @@ class StockEnvTrade(gym.Env):
         self.loss_reward_scaling = loss_reward_scaling
         self.state_space = state_space
         self.action_space = action_space
-        self.tech_indicator_list = tech_indicator_list
+        if tech_indicator_list is None:
+            self.tech_indicator_list = config.INDICATORS
 
-        # action_space normalization and shape is 5 * self.stock_dim (1 market order + 4 limit order)
+        # action_space normalization and
+        # shape is 5 * self.stock_dim (1 market order + 4 limit order)
         # for each stock it is arranged as:
         # market order
         # price of limit order 1
@@ -61,11 +67,12 @@ class StockEnvTrade(gym.Env):
         )
 
         # load data from dataframe
-        self.data = self.df.loc[self.day - 1, :]
+        self.data = self._df.loc[self.day - 1, :]
 
         self.terminal = False
 
-        self.hold_position = shares
+        if shares is None:
+            self.hold_position = [0] * 10
         self.save_file = save_file
 
         # initialize state
@@ -99,28 +106,39 @@ class StockEnvTrade(gym.Env):
         self._seed()
 
     def market_order(self, actions) -> None:
+        """
+        This is the market order execution.
+        Rules: All the order in day n will be executed based on the open price in day n+1
+        20% of the overnight spillage is defined in this problem
+        If there is no sufficient balance in the environment, all of the execution will be declined.
+
+        [input]
+        * actions   : numpy.ndarray of shape (stock_dim,1)
+
+        [output]
+        * None
+        """
         # firstly, check how much money that will spend
         money_spent = 0
         action_list = actions
-        for index in range(len(action_list)):
+        for index, action in enumerate(action_list):
             hold_index = 4 * self.stock_dim + index + 1
-            cur_open = self.df.loc[self.day + 1, :].Open.values[index]
+            cur_open = self._df.loc[self.day + 1, :].Open.values[index]
             pre_close = self.data.Close.values[index]
-            this_action = action_list[index]
-            if this_action > 0:
+            if action > 0:
                 # this is a buy market order
-                money_spent += this_action * (
+                money_spent += action * (
                     cur_open + abs(cur_open - pre_close) * self.transaction_cost_pct
                 )
-            elif this_action < 0:
+            elif action < 0:
                 # # this is a sell market order
                 # check whether short too much, make this order as zero if it short above threshold
                 if (
                     self.state[hold_index] - abs(action_list[index])
-                    > config.short_threshold[index]
+                    > config.SHORT_THRESHOLD[index]
                 ):
                     # we can short at this series
-                    money_spent += this_action * (
+                    money_spent += action * (
                         cur_open - abs(cur_open - pre_close) * self.transaction_cost_pct
                     )
                 else:
@@ -138,7 +156,7 @@ class StockEnvTrade(gym.Env):
                 (
                     abs(action_list)
                     * abs(
-                        self.df.loc[self.day + 1, :].Open.values
+                        self._df.loc[self.day + 1, :].Open.values
                         - self.data.Close.values
                     )
                 )
@@ -148,12 +166,28 @@ class StockEnvTrade(gym.Env):
             self.trades += 1
         else:
             # we can not process the order
-            # print("attempt to spend {}, but only {} available. Stop executing on day {}.".format(money_spent, self.state[0],self.day))
+            # print("attempt to spend {}, but only {} available.
+            # Stop executing on day {}.".format(money_spent, self.state[0],self.day))
             pass
 
     def limit_order(self, index, price, size) -> None:
-        low = self.df.loc[self.day + 1, :].Low.values[index]
-        high = self.df.loc[self.day + 1, :].High.values[index]
+        """
+        This is the market order execution.
+
+        Rules: Limit order will give a set of prices and size.
+        The whole limit order will execute iff
+        the price of this order was in the range of the maximum and minmum price in the trading day.
+
+        [input]
+        * index     : a certain stock execution (int in the range (0,10))
+        * price     : price of that order (true price will be close_price * (1+price))
+        * size      : position sizing on that stock
+
+        [output]
+        * None
+        """
+        low = self._df.loc[self.day + 1, :].Low.values[index]
+        high = self._df.loc[self.day + 1, :].High.values[index]
         # number of stocks hold at this index
         hold_index = 4 * self.stock_dim + index + 1
         if size > 0:
@@ -171,7 +205,8 @@ class StockEnvTrade(gym.Env):
                     self.state[hold_index] += size
                     self.trades += 1
                 else:
-                    # print("Atempt to buy {} stocks of series {}, but failed since the money only can buy {} stocks"
+                    # print("Atempt to buy {} stocks of series {},
+                    # but failed since the money only can buy {} stocks"
                     #       .format(size, index + 1, max_trade))
                     pass
             else:
@@ -196,6 +231,11 @@ class StockEnvTrade(gym.Env):
             pass
 
     def check_bankrupt(self) -> None:
+        """
+        This method calculates whether the trading comes to bankrupt.
+        If number of balance + values of all shares <0. It will come to bankrupt.
+        We penalize such action.
+        """
         end_total_asset = self.state[0] + sum(
             np.array(self.state[1 : (self.stock_dim + 1)])
             * np.array(self.state[(4 * self.stock_dim + 1) : (self.stock_dim * 5 + 1)])
@@ -204,22 +244,18 @@ class StockEnvTrade(gym.Env):
             self.terminal = True
             self.reward = (
                 abs(
-                    config.banrupt_penalty
+                    config.BANKRUPT_PENALTY
                     * abs(end_total_asset)
                     * self.loss_reward_scaling
                 )
                 * -1
             )
             self.rewards_memory.append(self.reward)
-            print(
-                "Bankrupt at day {}! end_total_asset:{}".format(
-                    self.day, end_total_asset
-                )
-            )
+            print(f"Bankrupt at day {self.day}! end_total_asset:{end_total_asset}")
             print("=================================")
 
-    def step(self, actions) -> None:
-        self.terminal = self.day >= len(self.df.index.unique()) - 1
+    def step(self, action) -> None:
+        self.terminal = self.day >= len(self._df.index.unique()) - 1
         # self.terminal = self.day >= len(self.df.index.unique())
         if self.terminal:
             # the trading ends, calculate the networth : balance + shares * open
@@ -231,7 +267,7 @@ class StockEnvTrade(gym.Env):
             )
             self.asset_memory.append(end_total_asset)
             df_total_value = pd.DataFrame(self.asset_memory)
-            if self.save_file != None:
+            if self.save_file is not None:
                 df_total_value.to_csv(
                     "results/account_value_trade.csv",
                     mode="a",
@@ -249,21 +285,15 @@ class StockEnvTrade(gym.Env):
             self.reward = sharpe
             return self.state, self.reward, self.terminal, {}
         else:
-            begin_total_asset = self.state[0] + sum(
-                np.array(self.state[1 : (self.stock_dim + 1)])
-                * np.array(
-                    self.state[(4 * self.stock_dim + 1) : (5 * self.stock_dim + 1)]
-                )
-            )
             # operate market order
-            market_action = actions[0 : self.stock_dim]
+            market_action = action[0 : self.stock_dim]
             market_action[abs(market_action) < 0.05] = 0
-            market_action = market_action * config.order_coefficient
+            market_action = market_action * config.ORDER_COEFFICIENT
 
             self.market_order(market_action)
 
             self.day += 1
-            self.data = self.df.loc[self.day, :]
+            self.data = self._df.loc[self.day, :]
             # load next state
             self.state = (
                 [self.state[0]]
@@ -306,16 +336,14 @@ class StockEnvTrade(gym.Env):
             else:
                 self.reward = 0
 
-            bankrupt = self.check_bankrupt()
-            if bankrupt == False:
-                self.rewards_memory.append(self.reward)
+            self.check_bankrupt()
 
         return self.state, self.reward, self.terminal, {}
 
     def reset(self):
         return self.state
 
-    def render(self, mode="human"):
+    def render(self):
         return self.state
 
     def _seed(self, seed=None):

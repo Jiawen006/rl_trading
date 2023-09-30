@@ -1,3 +1,4 @@
+"""import necessary packages for validation"""
 from typing import Type, Union
 
 import pandas as pd
@@ -22,7 +23,7 @@ def validate(
     )
     obj = env.reset()
     reward = 0
-    for i in range(data["Index"].nunique() - 1):
-        action, _states = model.predict(obj)
-        obj, reward, done, info = env.step(action)
+    for _ in range(data["Index"].nunique() - 1):
+        action, _ = model.predict(obj)
+        obj, reward, _, _ = env.step(action)
     return reward[0]

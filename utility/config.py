@@ -1,3 +1,4 @@
+"""time module will be used to name file directory"""
 from datetime import datetime
 
 import numpy as np
@@ -17,12 +18,12 @@ now = datetime.now()
 TRAINED_MODEL_DIR = f"trained_models/{now}"
 RESULT = f"results/{now}"
 
-a2ctimesteps = 30000
-ppotimesteps = 20000
-ddpgtimestep = 10000
-a2ctimesteps = 300
-ppotimesteps = 200
-ddpgtimestep = 100
+A2CTIMESTEPS = 30000
+PPOTIMESTEPS = 20000
+DDPG_TIMESTEPS = 10000
+# A2CTIMESTEPS = 300
+# PPOTIMESTEPS = 200
+# DDPG_TIMESTE = 100
 
 
 A2C_PARAMS = {
@@ -39,7 +40,7 @@ PPO_PARAMS = {
 }
 DDPG_PARAMS = {"batch_size": 128, "buffer_size": 50000, "learning_rate": 0.001}
 
-series_weight = np.array([10, 200, 1, 10, 1, 100, 0.1, 100, 1, 5])
-order_coefficient = 10 * series_weight
-short_threshold = -1000 * series_weight
-banrupt_penalty = -1000000
+SERIES_WEIGHT = np.array([10, 200, 1, 10, 1, 100, 0.1, 100, 1, 5])
+ORDER_COEFFICIENT = 10 * SERIES_WEIGHT
+SHORT_THRESHOLD = -1000 * SERIES_WEIGHT
+BANKRUPT_PENALTY = -1000000

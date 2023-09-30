@@ -7,13 +7,20 @@ from stockstats import StockDataFrame as Sdf
 from utility import config
 
 
-def data_split(df: pd.DataFrame, start: int, end: int) -> pd.DataFrame:
+def data_split(_df: pd.DataFrame, start: int, end: int) -> pd.DataFrame:
     """
-    split the dataset into training or testing using date
-    :param data: (df) pandas dataframe, start, end
-    :return: (df) pandas dataframe
+    split the dataset for trading in a sub-window
+
+    [input]
+    * _df       : dataframes with all testing data
+    * start     : window start date
+    * end       : window end date
+
+    [output]
+    * data      : sub dataframe
     """
-    data = df.iloc[start * 10 : end * 10, :]
+
+    data = _df.iloc[start * 10 : end * 10, :]
     data = data.sort_values(["Index", "Series"], ignore_index=True)
     data.index = data.Index.factorize()[0]
 
@@ -21,6 +28,19 @@ def data_split(df: pd.DataFrame, start: int, end: int) -> pd.DataFrame:
 
 
 def preprocess_pipeline(folder_path: str) -> pd.DataFrame:
+    """
+    general pipeline of precess data
+    step 1: load dataset
+    step 2: process all files into one dataframe
+    step 3: add technical indicators
+    step 4: add turbulence to the dataset
+
+    [input]
+    * folder_path   : folder name
+
+    [output]
+    * dataframe     : processed dataframe consist of all datasets
+    """
     result = pd.DataFrame()
     for filename in os.listdir(folder_path):
         if filename.endswith(".csv"):
@@ -42,18 +62,23 @@ def preprocess_pipeline(folder_path: str) -> pd.DataFrame:
 def single_preprocess(file_name: str) -> pd.DataFrame:
     """data preprocessing pipeline"""
 
-    df = load_dataset(file_name=file_name)
+    _df = load_dataset(file_name=file_name)
     # add technical indicators using stockstats
-    df = add_technical_indicator(df)
+    _df = add_technical_indicator(_df)
     # fill the missing values at the beginning
-    df.bfill(inplace=True)
-    return df
+    _df.bfill(inplace=True)
+    return _df
 
 
 def load_dataset(*, file_name: str) -> pd.DataFrame:
     """
-    load csv dataset from path
-    :return: (df) pandas dataframe
+    load dataset from the directory
+
+    [input]
+    * file name     : file name
+
+    [output]
+    * dataframe     : loaded dataframe
     """
     _data = pd.read_csv(file_name)
 
@@ -65,63 +90,79 @@ def load_dataset(*, file_name: str) -> pd.DataFrame:
     return _data
 
 
-def add_technical_indicator(df: pd.DataFrame) -> pd.DataFrame:
+def add_technical_indicator(_df: pd.DataFrame) -> pd.DataFrame:
     """
     calcualte technical indicators
     use stockstats package to add technical indicators
-    :param data: (df) pandas dataframe
-    :return: (df) pandas dataframe
+
+    [input]
+    * _df            : dataframe
+
+    [output]
+    * _df           : dataframe with technical indicator
     """
 
-    stock = Sdf.retype(df.copy())
+    stock = Sdf.retype(_df.copy())
 
-    macd = pd.DataFrame()
-    rsi = pd.DataFrame()
-    cci = pd.DataFrame()
-    dx = pd.DataFrame()
+    _macd = pd.DataFrame()
+    _rsi = pd.DataFrame()
+    _cci = pd.DataFrame()
+    _dx = pd.DataFrame()
 
     ## macd
     temp_macd = stock["macd"]
     temp_macd = pd.DataFrame(temp_macd)
-    macd = pd.concat([temp_macd, macd]).reset_index(drop=True)
+    _macd = pd.concat([temp_macd, _macd]).reset_index(drop=True)
     ## rsi
     temp_rsi = stock["rsi_30"]
     temp_rsi = pd.DataFrame(temp_rsi)
-    rsi = pd.concat([temp_rsi, rsi]).reset_index(drop=True)
+    _rsi = pd.concat([temp_rsi, _rsi]).reset_index(drop=True)
     ## cci
     temp_cci = stock["cci_30"]
     temp_cci = pd.DataFrame(temp_cci)
-    cci = pd.concat([temp_cci, cci]).reset_index(drop=True)
+    _cci = pd.concat([temp_cci, _cci]).reset_index(drop=True)
     ## adx
     temp_dx = stock["dx_30"]
     temp_dx = pd.DataFrame(temp_dx)
-    dx = pd.concat([temp_dx, dx]).reset_index(drop=True)
+    _dx = pd.concat([temp_dx, _dx]).reset_index(drop=True)
 
-    df["macd"] = macd
-    df["rsi"] = rsi
-    df["cci"] = cci
-    df["adx"] = dx
+    _df["macd"] = _macd
+    _df["rsi"] = _rsi
+    _df["cci"] = _cci
+    _df["adx"] = _dx
 
-    return df
+    return _df
 
 
-def add_turbulence(df: pd.DataFrame) -> pd.DataFrame:
+def add_turbulence(_df: pd.DataFrame) -> pd.DataFrame:
     """
-    add turbulence index from a precalcualted dataframe
-    :param data: (df) pandas dataframe
-    :return: (df) pandas dataframe
+    Add turbulence index from a precalcualted dataframe
+
+    [input]
+    * _df            : dataframe
+
+    [output]
+    * _df           : dataframe with turbulence
     """
-    turbulence_index = calcualte_turbulence(df)
-    df = df.merge(turbulence_index, on="Index")
-    df = df.sort_values(["Index", "Series"]).reset_index(drop=True)
-    return df
+    turbulence_index = calcualte_turbulence(_df)
+    _df = _df.merge(turbulence_index, on="Index")
+    _df = _df.sort_values(["Index", "Series"]).reset_index(drop=True)
+    return _df
 
 
-def calcualte_turbulence(df: pd.DataFrame) -> pd.DataFrame:
-    # can add other market assets
+def calcualte_turbulence(_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add turbulence index from a precalcualted dataframe
 
-    df_price_pivot = df.pivot(index="Index", columns="Series", values="Close")
-    unique_date = df.Index.unique()
+    [input]
+    * _df               : dataframe
+
+    [output]
+    * turbulence_index  : calculate turbulence for each day
+    """
+
+    df_price_pivot = _df.pivot(index="Index", columns="Series", values="Close")
+    unique_date = _df.Index.unique()
     # start after a period
     start = config.TURBULENCE_START
     turbulence_index = [0] * start

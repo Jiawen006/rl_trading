@@ -66,7 +66,7 @@ def a2c_training(env_train, model_name: pd.DataFrame) -> Type[A2C]:
 
     start = time.time()
     model = A2C("MlpPolicy", env_train, **config.A2C_PARAMS)
-    model.learn(total_timesteps=config.a2ctimesteps)
+    model.learn(total_timesteps=config.A2CTIMESTEPS)
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
@@ -90,7 +90,7 @@ def ppo_training(env_train, model_name: pd.DataFrame) -> Type[PPO]:
     model = PPO("MlpPolicy", env_train, **config.PPO_PARAMS)
     # model = PPO2('MlpPolicy', env_train, ent_coef = 0.005)
 
-    model.learn(total_timesteps=config.ppotimesteps)
+    model.learn(total_timesteps=config.PPOTIMESTEPS)
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
@@ -121,7 +121,7 @@ def ddpg_training(env_train, model_name: pd.DataFrame) -> Type[DDPG]:
         "MlpPolicy", env_train, action_noise=action_noise, **config.DDPG_PARAMS
     )
 
-    model.learn(total_timesteps=config.ddpgtimestep)
+    model.learn(total_timesteps=config.DDPG_TIMESTEPS)
     end = time.time()
 
     model.save(f"{config.TRAINED_MODEL_DIR}/{model_name}")
