@@ -63,7 +63,7 @@ def data_load(folder_name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     return train_data, test_data
 
-
+  
 def train_model(data: pd.DataFrame) -> Union[Type[A2C], Type[PPO], Type[DDPG]]:
     """
     Train a model before trading
