@@ -1,3 +1,4 @@
+"""Module providing a function to calculate the training time."""
 import time
 from typing import Type, Union
 
@@ -13,23 +14,32 @@ from utility.validate import validate
 
 
 def run_train(data: pd.DataFrame) -> Union[Type[A2C], Type[PPO], Type[DDPG]]:
+    """
+    Training a robust model before trading
+
+    [input]
+    * data      : dataframe that consist of open, high, low, close prices
+
+    [output]
+    * model: the model with best sharpe ratio between A2C, DDPG, and PPO
+    """
     env_train = DummyVecEnv([lambda: StockEnvTrain(data)])
 
     data = pd.read_csv("DATA/train_processed.csv")
     validate_data = data.tail(90 * 10)
     validate_data.index = validate_data.Index.factorize()[0]
 
-    model_a2c = train_A2C(env_train=env_train, model_name="a2c_train")
+    model_a2c = a2c_training(env_train=env_train, model_name="a2c_train")
     a2c_reward = validate(
         model_a2c, validate_data, balance=config.INITIAL_AMOUNT, shares=[0] * 10
     )
 
-    model_ppo = train_PPO(env_train=env_train, model_name="ppo_train")
+    model_ppo = ppo_training(env_train=env_train, model_name="ppo_train")
     ppo_reward = validate(
         model_ppo, validate_data, balance=config.INITIAL_AMOUNT, shares=[0] * 10
     )
 
-    model_ddpg = train_DDPG(env_train=env_train, model_name="ddpg_train")
+    model_ddpg = ddpg_training(env_train=env_train, model_name="ddpg_train")
     ddpg_reward = validate(
         model_ddpg, validate_data, balance=config.INITIAL_AMOUNT, shares=[0] * 10
     )
@@ -37,15 +47,22 @@ def run_train(data: pd.DataFrame) -> Union[Type[A2C], Type[PPO], Type[DDPG]]:
     # validate which model perform best
     if a2c_reward > max(ppo_reward, ddpg_reward):
         return model_a2c
-    else:
-        if ppo_reward > ddpg_reward:
-            return model_ppo
-        else:
-            return model_ddpg
+    if ppo_reward > ddpg_reward:
+        return model_ppo
+    return model_ddpg
 
 
-def train_A2C(env_train, model_name: pd.DataFrame) -> Type[A2C]:
-    """A2C model"""
+def a2c_training(env_train, model_name: pd.DataFrame) -> Type[A2C]:
+    """
+     Train a A2C model
+
+     [input]
+    * env_train      : training environment
+    * model_name     : name of the saved files
+
+     [output]
+    * model          : A2C model
+    """
 
     start = time.time()
     model = A2C("MlpPolicy", env_train, **config.A2C_PARAMS)
@@ -57,8 +74,17 @@ def train_A2C(env_train, model_name: pd.DataFrame) -> Type[A2C]:
     return model
 
 
-def train_PPO(env_train, model_name: pd.DataFrame) -> Type[PPO]:
-    """PPO model"""
+def ppo_training(env_train, model_name: pd.DataFrame) -> Type[PPO]:
+    """
+     Train a ppo model
+
+     [input]
+    * env_train      : training environment
+    * model_name     : name of the saved files
+
+     [output]
+    * model          : PPO model
+    """
 
     start = time.time()
     model = PPO("MlpPolicy", env_train, **config.PPO_PARAMS)
@@ -72,12 +98,20 @@ def train_PPO(env_train, model_name: pd.DataFrame) -> Type[PPO]:
     return model
 
 
-def train_DDPG(env_train, model_name: pd.DataFrame) -> Type[DDPG]:
-    """DDPG model"""
+def ddpg_training(env_train, model_name: pd.DataFrame) -> Type[DDPG]:
+    """
+     Train a ddpg model
+
+     [input]
+    * env_train      : training environment
+    * model_name     : name of the saved files
+
+     [output]
+    * model          : DDPG model
+    """
 
     # add the noise objects for DDPG
     n_actions = env_train.action_space.shape[-1]
-    param_noise = None
     action_noise = OrnsteinUhlenbeckActionNoise(
         mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions)
     )

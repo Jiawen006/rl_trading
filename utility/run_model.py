@@ -1,10 +1,8 @@
+"""import os package for file location retrieval and other local packages for baseline execution"""
 import os
 from typing import Tuple, Type, Union
 
-import numpy as np
 import pandas as pd
-import pandera as pa
-from pandera.typing import DataFrame, Index, Series
 from stable_baselines3 import A2C, DDPG, PPO
 
 from utility import config, preprocessor
@@ -33,7 +31,7 @@ def run() -> None:
         model=model, data=test_data, window_length=config.WINDOW_LENGTH
     )
 
-    print("Trading ends. Final Sharpe Ratio is {}".format(final_sharpe))
+    print(f"Trading ends. Final Sharpe Ratio is {final_sharpe}")
 
 
 def data_load(folder_name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -49,7 +47,7 @@ def data_load(folder_name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     # check whether folder exist
     if not os.path.exists(folder_name):
-        raise Exception("DATA Folder not found.")
+        raise FileNotFoundError("DATA Folder not found.")
     # check whether processed data exist
     if os.path.exists(config.TRAINING_DATA_NAME):
         train_data = pd.read_csv(config.TRAINING_DATA_NAME, index_col=0)

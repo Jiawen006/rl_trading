@@ -1,12 +1,10 @@
-import os
-import sys
+"""import required packages for typing, trading environment and predicting on RL model"""
 from typing import Type, Union
 
 import pandas as pd
 from stable_baselines3 import A2C, DDPG, PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from utility import preprocessor
 from utility.env.environment_trade import StockEnvTrade
 
 
@@ -16,6 +14,20 @@ def trade(
     balance: float,
     shares: float,
 ) -> tuple[float, float, float]:
+    """
+    Trade based on pretrained model
+
+    [input]
+    * model     : stable baseline model for trading
+    * data      : dataframe with a specific trading period
+    * balance   : balance before the trading
+    * shares    : shares before the trading
+
+    [output]
+    * balance   : Remaining balance after this round of trading.
+    * shares    : Number of shares remaining after this round.
+    * rewards   : Shape ratio after the trading
+    """
     env = DummyVecEnv(
         [
             lambda: StockEnvTrade(
@@ -29,9 +41,9 @@ def trade(
     reward_list = []
     balance_list = []
     share_list = []
-    for i in range(trade_num - 1):
+    for _ in range(trade_num - 1):
         action, _states = model.predict(obs_trade)
-        obs_trade, rewards, dones, info = env.step(action)
+        obs_trade, rewards, _, _ = env.step(action)
         balance = balance_list.append(obs_trade[0][0])
         shares = share_list.append(obs_trade[0][41:51])
         reward_list.append(rewards[0])
